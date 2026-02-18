@@ -16,7 +16,7 @@ Fork of `raonetwo/MaximizeToWorkspace` updated to support the GNOME 45+ ESM arch
 To install this extension locally:
 
 ```bash
-git clone [https://github.com/amancode22/MaximizeWorkspaceHistory.git](https://github.com/amancode22/MaximizeWorkspaceHistory.git)
+git clone https://github.com/AmanCode22/MaximizeWorkspaceHistory.git
 cd MaximizeWorkspaceHistory
 gnome-extensions pack --force
 gnome-extensions install maximize-workspace-history@amancode22.github.com.shell-extension.zip --force
