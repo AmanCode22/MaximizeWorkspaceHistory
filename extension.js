@@ -1,36 +1,55 @@
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import Meta from 'gi://Meta';
 import GLib from 'gi://GLib';
 
-export default class MaximizeToWorkspaceExtension {
-    constructor() {
+export default class MaximizeWorkspaceHistory extends Extension {
+    constructor(args) {
+        super(args);
         this._windowManagerHandles = [];
         this._oldWorkspaces = {};
         this._fullScreenApps = {};
+        this._timeoutIds = []; // Track timeouts to prevent ghost processes
+    }
+
+    // GNOME 49 compatibility helper
+    _isWindowMaximized(win) {
+        // GNOME 49 completely removed get_maximized() in favor of is_maximized()
+        if (typeof win.is_maximized === 'function') {
+            return win.is_maximized();
+        }
+        // Fallback for GNOME 48 and older
+        if (typeof win.get_maximized === 'function') {
+            return win.get_maximized() === Meta.MaximizeFlags.BOTH;
+        }
+        return false;
     }
 
     enable() {
-        
+        // Handle when a window maps (appears/renders)
         this._windowManagerHandles.push(
             global.window_manager.connect('map', (_, act, change) => {
-                if (act.meta_window && act.meta_window.get_maximized() === Meta.MaximizeFlags.BOTH) {
+                if (act.meta_window && this._isWindowMaximized(act.meta_window)) {
                     this._check(act.meta_window, change);
                 }
             })
         );
         
-        
+        // Add size-change event handler for windows
         this._windowManagerHandles.push(
             global.window_manager.connect('size-change', (_, act, change) => {
-                GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
+                let timeoutId = GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
                     if (act.meta_window) {
                         this._check(act.meta_window, change);
                     }
+                    // Clean up timeout ID tracking once done
+                    this._timeoutIds = this._timeoutIds.filter(id => id !== timeoutId);
                     return GLib.SOURCE_REMOVE; 
                 });
+                this._timeoutIds.push(timeoutId);
             })
         );
         
-        
+        // Handle when a window is closed
         this._windowManagerHandles.push(
             global.window_manager.connect('destroy', (_, act) => {
                 this._handleWindowClose(act);
@@ -39,13 +58,19 @@ export default class MaximizeToWorkspaceExtension {
     }
 
     disable() {
-        // Disconnect handlers
+        // Disconnect GNOME shell handlers
         for (const handle of this._windowManagerHandles) {
             global.window_manager.disconnect(handle);
         }
         
+        // Kill any pending timeouts so they don't fire after disabling
+        for (const timeoutId of this._timeoutIds) {
+            GLib.source_remove(timeoutId);
+        }
+        
         // Reset state
         this._windowManagerHandles = [];
+        this._timeoutIds = [];
         this._oldWorkspaces = {};
         this._fullScreenApps = {};
     }
@@ -100,7 +125,7 @@ export default class MaximizeToWorkspaceExtension {
         const w = currentWorkspace.list_windows()
             .filter(w => w !== win && !w.is_always_on_all_workspaces() && win.get_monitor() === w.get_monitor());
 
-        if (change === Meta.SizeChange.UNFULLSCREEN || change === Meta.SizeChange.UNMAXIMIZE || (change === Meta.SizeChange.MAXIMIZE && win.get_maximized() !== Meta.MaximizeFlags.BOTH)) {
+        if (change === Meta.SizeChange.UNFULLSCREEN || change === Meta.SizeChange.UNMAXIMIZE || (change === Meta.SizeChange.MAXIMIZE && !this._isWindowMaximized(win))) {
             
             if (this._fullScreenApps[name] !== undefined) {
                 if (w.length === 0) {
