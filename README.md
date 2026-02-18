@@ -20,10 +20,10 @@ git clone https://github.com/AmanCode22/MaximizeWorkspaceHistory.git
 cd MaximizeWorkspaceHistory
 gnome-extensions pack --force
 gnome-extensions install maximize-workspace-history@amancode22.github.com.shell-extension.zip --force
-gnome-extensions enable maximize-workspace-history@amancode22.github.com
 ```
 #### Important Note:
 After installation on x11 press Alt + F2 and entering r to restart the GNOME shell for extension to work properly. For wayland you will need to log out of your session completely and login for the extension to work properly.
+After restarting shell/re-login enable extension and enjoy!
 
 ### Install from gnome extensions website (Gnome 45+)
 Would be uploaded soon.
