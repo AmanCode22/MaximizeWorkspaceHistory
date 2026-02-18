@@ -1,20 +1,28 @@
-# MaximizeToWorkspace [No longer maintained]
+# MaximizeWorkspaceHistory
 
-Check this extension out at https://extensions.gnome.org/extension/2857/maximize-to-workspace-with-history/. For best ( MacOS like ) experience set up 3/4 finger gestures to tile windows and switch workspaces.
+A modernized fork that brings the macOS experience to GNOME: it puts windows in a new workspace when maximized or full-screened and brings you back to the original workspace when unmaximized, unfull-screened, or the window gets closed. 
+
+For the best experience, set up 3/4 finger gestures to tile windows and switch workspaces.
 
 ***
 
 Reference: 
-
-Fork of https://github.com/rliang/gnome-shell-extension-maximize-to-workspace with added history support. Took some elements from https://github.com/satran/fullscreenworkspace-satran.in that adds some basic history tracking
-
+Fork of `raonetwo/MaximizeToWorkspace` updated to support the GNOME 45+ ESM architecture. Original history logic inspired by `rliang` and `satran`.
 
 ***
 
-To install run:
-```
-git clone https://github.com/raonetwo/MaximizeToWorkspace.git ~/.local/share/gnome-shell/extensions/maximize-to-workspace@raonetwo.github.com
-gnome-extensions enable maximize-to-workspace@raonetwo.github.com
-```
+### Manual Installation (GNOME 45+)
 
-Then press Alt + F2 and in the dialogue box press "r" (no quotes) and enter to refresh the gnome session and verify that the extension has been enabled
+To install this extension locally:
+
+```bash
+git clone [https://github.com/amancode22/MaximizeWorkspaceHistory.git](https://github.com/amancode22/MaximizeWorkspaceHistory.git)
+cd MaximizeWorkspaceHistory
+gnome-extensions pack --force
+gnome-extensions install maximize-workspace-history@amancode22.github.com.shell-extension.zip --force
+gnome-extensions enable maximize-workspace-history@amancode22.github.com
+```
+#### Important Note for Wayland: If you are testing this on Fedora or another distribution using Wayland, pressing Alt + F2 and entering r to restart the GNOME shell will not work. You will need to log out of your session completely and log back in for the newly packed extension to take effect.
+
+### Install from gnome extensions website (Gnome 45+)
+Would be uploaded soon.
