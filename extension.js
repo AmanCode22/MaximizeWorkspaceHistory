@@ -5,7 +5,6 @@ import GLib from 'gi://GLib';
 export default class MaximizeWorkspaceHistory extends Extension {
     constructor(args) {
         super(args);
-        this._windowManagerHandles = [];
         this._oldWorkspaces = {};
         this._fullScreenApps = {};
         this._timeoutIds = []; // Track timeouts to prevent ghost processes
@@ -25,18 +24,14 @@ export default class MaximizeWorkspaceHistory extends Extension {
     }
 
     enable() {
-        // Handle when a window maps (appears/renders)
-        this._windowManagerHandles.push(
-            global.window_manager.connect('map', (_, act, change) => {
+        // Bind all window manager signals directly to this extension object
+        global.window_manager.connectObject(
+            'map', (_, act, change) => {
                 if (act.meta_window && this._isWindowMaximized(act.meta_window)) {
                     this._check(act.meta_window, change);
                 }
-            })
-        );
-        
-        // Add size-change event handler for windows
-        this._windowManagerHandles.push(
-            global.window_manager.connect('size-change', (_, act, change) => {
+            },
+            'size-change', (_, act, change) => {
                 let timeoutId = GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
                     if (act.meta_window) {
                         this._check(act.meta_window, change);
@@ -46,30 +41,24 @@ export default class MaximizeWorkspaceHistory extends Extension {
                     return GLib.SOURCE_REMOVE; 
                 });
                 this._timeoutIds.push(timeoutId);
-            })
-        );
-        
-        // Handle when a window is closed
-        this._windowManagerHandles.push(
-            global.window_manager.connect('destroy', (_, act) => {
+            },
+            'destroy', (_, act) => {
                 this._handleWindowClose(act);
-            })
+            },
+            this // The target object tying the lifecycle of these signals
         );
     }
 
     disable() {
-        // Disconnect GNOME shell handlers
-        for (const handle of this._windowManagerHandles) {
-            global.window_manager.disconnect(handle);
-        }
+        // Automatically disconnects all signals tied to 'this' in connectObject
+        global.window_manager.disconnectObject(this);
         
-        // Kill any pending timeouts so they don't fire after disabling
+        // Kill any pending GLib timeouts so they don't fire after disabling
         for (const timeoutId of this._timeoutIds) {
             GLib.source_remove(timeoutId);
         }
         
         // Reset state
-        this._windowManagerHandles = [];
         this._timeoutIds = [];
         this._oldWorkspaces = {};
         this._fullScreenApps = {};
