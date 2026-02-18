@@ -22,7 +22,8 @@ gnome-extensions pack --force
 gnome-extensions install maximize-workspace-history@amancode22.github.com.shell-extension.zip --force
 gnome-extensions enable maximize-workspace-history@amancode22.github.com
 ```
-#### Important Note for Wayland: If you are testing this on Fedora or another distribution using Wayland, pressing Alt + F2 and entering r to restart the GNOME shell will not work. You will need to log out of your session completely and log back in for the newly packed extension to take effect.
+#### Important Note:
+After installation on x11 press Alt + F2 and entering r to restart the GNOME shell for extension to work properly. For wayland you will need to log out of your session completely and login for the extension to work properly.
 
 ### Install from gnome extensions website (Gnome 45+)
 Would be uploaded soon.
