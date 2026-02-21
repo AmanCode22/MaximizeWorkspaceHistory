@@ -26,4 +26,4 @@ After installation on x11 press Alt + F2 and entering r to restart the GNOME she
 After restarting shell/re-login enable extension and enjoy!
 
 ### Install from gnome extensions website (Gnome 45+)
-Would be uploaded soon.
+https://extensions.gnome.org/extension/9346/maximize-to-workspace-with-history/
